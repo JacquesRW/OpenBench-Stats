@@ -1,13 +1,18 @@
 from util.core import Test
 from util.chi2 import Chi2
+from util.sprt import Sprt
 
 HEADER = '\033[95m'
-OKBLUE = '\033[94m'
-OKGREEN = '\033[92m'
-FAIL = '\033[91m'
+BLUE = '\033[94m'
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+RED = '\033[91m'
 ENDC = '\033[0m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
+
+def fmt(line: str, fmtter: str) -> str:
+    return fmtter + line + ENDC + "\n"
 
 def summary(sprt: Test) -> str:
     # carry out chi2 test
@@ -19,18 +24,23 @@ def summary(sprt: Test) -> str:
     summary += f"URL    : {UNDERLINE}{sprt.url()}{ENDC}\n"
     summary += f"DIFF   : {UNDERLINE}{sprt.diff()}{ENDC}\n\n"
 
-    summary += OKBLUE + BOLD + "ID  :OWNER       :GAMES :WINS  :LOSSES:DRAWS" + ENDC + "\n"
+    summary += fmt("ID  :OWNER       :GAMES :WINS  :LOSSES:DRAWS", BLUE + BOLD)
     for i, worker in enumerate(sprt.workers()):
         if sum(worker.results()) > 0:
             if anomalous and most == i:
-                summary += FAIL + BOLD + str(worker) + "<-- Most Anomalous Worker" + ENDC + "\n"
+                summary += fmt(str(worker) + "<-- Most Anomalous Worker", RED + BOLD)
             else:
                 summary += str(worker) + "\n"
 
     if anomalous:
-        summary += "\n" + FAIL + BOLD + "Anomaly detected, SPRT rejected." + ENDC + "\n"
+        summary += "\n" + fmt("Anomaly detected, SPRT rejected.", RED + BOLD) + "\n"
     else:
-        summary += "\n" + FAIL + OKGREEN + "We gamin'." + ENDC + "\n"
+        summary += "\n" + fmt("No anomalous workers detected.", GREEN + BOLD) + "\n"
+
+    summary += "Possible SPRT Results\n"
+    for i in [3, 5, 10]:
+        sprt_result, llr = Sprt.sprt(test, 0, i)
+        summary += fmt(f"[0, {i: >2}] LLR {llr: >5.2f}", [RED, YELLOW, GREEN][sprt_result])
 
     print(summary)
 

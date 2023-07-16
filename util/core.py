@@ -51,6 +51,9 @@ class Test:
         self.__engine = test_info[1].split("</td>")[0]
         self.__diff = html[0].strip("\"").split("\"")[1]
 
+        if len(worker_info) == 0:
+            return
+
         os = worker_info[0].__contains__("OS")
 
         data = []
