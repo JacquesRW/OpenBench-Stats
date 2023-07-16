@@ -42,4 +42,5 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--test', type=int, default=1, help="Test number to analyse.")
     args = parser.parse_args()
 
-    summary(Test(args.instance, args.test))
+    test = Test(args.instance, args.test)
+    summary(test)

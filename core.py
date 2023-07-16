@@ -63,7 +63,7 @@ class Test:
             data.append(t)
 
         for worker in data:
-            if int(worker[3]) > 0:
+            if int(worker[3 + os]) > 0:
                 self.push(Worker(worker[1], int(worker[0]), [int(worker[4 + os]), int(worker[5 + os]), int(worker[6 + os])]))
 
     def push(self, worker: Worker):
