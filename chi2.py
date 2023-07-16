@@ -64,10 +64,9 @@ def test_sprts(instance: str, start: int, end: int):
         if test:
             anomalies.append(sprt.url())
             print(f"Anomaly Detected: {sprt.url()}")
+            print(sprt)
         elif test is None:
             print(f"Can't Calculate: {sprt.url()}")
-        else:
-            print(f"A-Okay: {sprt.url()}")
 
     print("Anomalies:")
     for anomaly in anomalies:
