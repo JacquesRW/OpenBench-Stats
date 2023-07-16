@@ -43,7 +43,7 @@ class Test:
 
         html = str(response.content)
         html = html.split("id=\"actions\"", 1)
-        test_info = html[0].split("OpenBench Testing Framework", 1)[1].split("<td>")[1::]
+        test_info = html[0].split("Testing Framework", 1)[1].split("<td>")[1::]
         html = html[1].split("id=\"results\"", 1)
         worker_info = html[1].split("<tr>")[1::]
 
@@ -51,14 +51,20 @@ class Test:
         self.__engine = test_info[1].split("</td>")[0]
         self.__diff = html[0].strip("\"").split("\"")[1]
 
+        os = worker_info[0].__contains__("OS")
+
         data = []
         for item in worker_info:
             s = item.split("</td>")
-            data.append([s[i].split('>')[1] for i in range(7)])
+            try:
+                t = [s[i].split('>')[1] for i in range(7 + os)]
+            except:
+                continue
+            data.append(t)
 
         for worker in data:
             if int(worker[3]) > 0:
-                self.push(Worker(worker[1], int(worker[0]), [int(worker[4]), int(worker[5]), int(worker[6])]))
+                self.push(Worker(worker[1], int(worker[0]), [int(worker[4 + os]), int(worker[5 + os]), int(worker[6 + os])]))
 
     def push(self, worker: Worker):
         self.__workers.append(worker)
