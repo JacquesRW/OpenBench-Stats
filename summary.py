@@ -1,5 +1,5 @@
-from core import Test
-from chi2 import Chi2
+from util.core import Test
+from util.chi2 import Chi2
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'

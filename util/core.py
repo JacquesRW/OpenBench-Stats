@@ -36,7 +36,7 @@ class Test:
     __workers: list[Worker]
 
     def __init__(self, instance: str, test_number: int):
-        self.__url = instance + "/test/" + str(test_number)
+        self.__url = instance.strip("/") + "/test/" + str(test_number)
         self.__workers = []
 
         response = requests.get(self.url())
