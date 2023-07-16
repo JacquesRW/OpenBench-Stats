@@ -21,4 +21,9 @@ python3 summary.py --instance https://chess.swehosting.se --test 2581
 > 134 :Jay         :5326  :1231  :1125  :2970
 >
 > Anomaly detected, SPRT rejected.
+>
+> Possible SPRT Results
+> [0,  3] LLR -0.03
+> [0,  5] LLR -0.51
+> [0, 10] LLR -3.29
 ```
