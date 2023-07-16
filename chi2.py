@@ -1,14 +1,14 @@
 from core import Test
 
 class Chi2:
-    __crit_vals_95 = [
-           0.0,  3.841,  5.991,  7.815,  9.488,
-        11.070, 12.592, 14.067, 15.507, 16.919,
-        18.307, 19.675, 21.026, 22.362, 23.685,
-        24.996, 26.296, 27.587, 28.869, 30.144,
-        31.410, 32.671, 33.924, 35.172, 36.415,
-        37.652, 38.885, 40.113, 41.337, 42.557,
-        43.773, 44.985, 46.194, 47.400, 48.602,
+    __crit_vals_99 = [
+           0.0,  6.635,  9.210, 11.345, 13.277,
+        15.086, 16.812, 18.475, 20.090, 21.666,
+        23.209, 24.725, 26.217, 27.688, 29.141,
+        30.578, 32.000, 33.409, 34.805, 36.191,
+        37.566, 38.932, 40.289, 41.638, 42.980,
+        44.314, 45.642, 46.963, 48.278, 49.588,
+        50.892, 52.191, 53.486, 54.776, 56.061,
     ]
 
     @staticmethod
@@ -30,7 +30,7 @@ class Chi2:
         statistic = 0.0
         most_anomalous, worst = 0, 0.0
 
-        for i, worker in enumerate(sprt.workers()):
+        for num, worker in enumerate(sprt.workers()):
             worker_results = worker.results()
             worker_played = sum(worker_results)
 
@@ -42,7 +42,8 @@ class Chi2:
                 statistic += stat
 
             if worker_anomaly > worst:
-                most_anomalous = i
+                most_anomalous = num
+                worst = worker_anomaly
 
         return statistic, most_anomalous
 
@@ -50,7 +51,7 @@ class Chi2:
     def test(sprt: Test) -> tuple[bool, int]:
         statistic, most_anomalous = Chi2.__statistic(sprt)
         degrees_of_freedom = 2 * (len(sprt.workers()) - 1)
-        if statistic is None or degrees_of_freedom >= len(Chi2.__crit_vals_95):
+        if statistic is None or degrees_of_freedom >= len(Chi2.__crit_vals_99):
             return None, 0
 
-        return statistic > Chi2.__crit_vals_95[degrees_of_freedom], most_anomalous
+        return statistic > Chi2.__crit_vals_99[degrees_of_freedom], most_anomalous
