@@ -42,15 +42,14 @@ class Test:
         response = requests.get(self.url())
 
         html = str(response.content)
-        html = html.split("<div class=\"ml-3\" id=\"actions\"><h4><a href=", 1)
-        test_info = html[0].split("<a class=\"site-title\" href=\"/\">", 1)[1].split("<td>")[1::]
-        html = html[1].split("<div class=\"w-100 mt-3\" id=\"results\" style=\"float:left;\">", 1)
+        html = html.split("id=\"actions\"", 1)
+        test_info = html[0].split("OpenBench Testing Framework", 1)[1].split("<td>")[1::]
+        html = html[1].split("id=\"results\"", 1)
         worker_info = html[1].split("<tr>")[1::]
 
         self.__creator = test_info[0].split("</td>")[0]
         self.__engine = test_info[1].split("</td>")[0]
-        self.__diff = html[0].strip("\"").split("\"")[0]
-
+        self.__diff = html[0].strip("\"").split("\"")[1]
 
         data = []
         for item in worker_info:
@@ -58,7 +57,8 @@ class Test:
             data.append([s[i].split('>')[1] for i in range(7)])
 
         for worker in data:
-            self.push(Worker(worker[1], int(worker[0]), [int(worker[4]), int(worker[5]), int(worker[6])]))
+            if int(worker[3]) > 0:
+                self.push(Worker(worker[1], int(worker[0]), [int(worker[4]), int(worker[5]), int(worker[6])]))
 
     def push(self, worker: Worker):
         self.__workers.append(worker)

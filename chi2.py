@@ -12,7 +12,7 @@ class Chi2:
     ]
 
     @staticmethod
-    def __statistic(sprt: Test) -> float:
+    def __statistic(sprt: Test) -> tuple[float, int]:
         results = [0, 0, 0]
 
         for worker in sprt.workers():
@@ -25,54 +25,32 @@ class Chi2:
                 return None, 0
 
         played = sum(results)
-
         proportions = [result / played for result in results]
 
         statistic = 0.0
+        most_anomalous, worst = 0, 0.0
 
-        num_workers = 0
-        for worker in sprt.workers():
+        for i, worker in enumerate(sprt.workers()):
             worker_results = worker.results()
             worker_played = sum(worker_results)
-            if worker_played == 0:
-                continue
 
-            num_workers += 1
+            worker_anomaly = 0.0
             for i in range(3):
                 expected = proportions[i] * worker_played
                 stat = pow(worker_results[i] - expected, 2) / expected
+                worker_anomaly += stat
                 statistic += stat
 
-        return statistic, num_workers
+            if worker_anomaly > worst:
+                most_anomalous = i
+
+        return statistic, most_anomalous
 
     @staticmethod
-    def test(sprt: Test) -> bool:
-        statistic, num_workers = Chi2.__statistic(sprt)
-        degrees_of_freedom = 2 * (num_workers - 1)
+    def test(sprt: Test) -> tuple[bool, int]:
+        statistic, most_anomalous = Chi2.__statistic(sprt)
+        degrees_of_freedom = 2 * (len(sprt.workers()) - 1)
         if statistic is None or degrees_of_freedom >= len(Chi2.__crit_vals_95):
-            return None
+            return None, 0
 
-        return statistic > Chi2.__crit_vals_95[degrees_of_freedom]
-
-
-def test_sprts(instance: str, start: int, end: int):
-    anomalies = []
-
-    for test_number in reversed(range(start, end + 1)):
-        sprt = Test(instance, test_number)
-        test = Chi2.test(sprt)
-        if test:
-            anomalies.append(sprt.url())
-            print(f"Anomaly Detected: {sprt.url()}")
-            print(sprt)
-        elif test is None:
-            print(f"Can't Calculate: {sprt.url()}")
-
-    print("Anomalies:")
-    for anomaly in anomalies:
-        print(anomaly)
-
-if __name__ == "__main__":
-    instance = "https://chess.swehosting.se"
-
-    test_sprts(instance, 2500, 2599)
+        return statistic > Chi2.__crit_vals_95[degrees_of_freedom], most_anomalous
