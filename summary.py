@@ -11,8 +11,15 @@ ENDC = '\033[0m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 
+
 def fmt(line: str, fmtter: str) -> str:
     return fmtter + line + ENDC + "\n"
+
+
+def add_outcome(summary, test, e0, e1):
+    sprt_result, llr = Sprt.sprt(test, e0, e1)
+    return summary + fmt(f"[{e0: >2}, {e1}] LLR {llr: >5.2f}", [RED, YELLOW, GREEN][sprt_result])
+
 
 def summary(sprt: Test) -> str:
     # carry out chi2 test
@@ -37,10 +44,15 @@ def summary(sprt: Test) -> str:
     else:
         summary += "\n" + fmt("No anomalous workers detected.", GREEN + BOLD) + "\n"
 
-    summary += "Possible SPRT Results\n"
-    for i in [3, 5, 10]:
-        sprt_result, llr = Sprt.sprt(test, 0, i)
-        summary += fmt(f"[0, {i: >2}] LLR {llr: >5.2f}", [RED, YELLOW, GREEN][sprt_result])
+    summary += "ELO: "
+    e1, e2, e3 = Sprt.elo(test)
+    summary += f"{round(e2, 2)} +- {round((e3 - e1) / 2, 2)}\n"
+
+    summary += "\nPossible SPRT Results\n"
+    summary = add_outcome(summary, test, -5, 0)
+    summary = add_outcome(summary, test, -3, 1)
+    summary = add_outcome(summary, test, 0, 3)
+    summary = add_outcome(summary, test, 0, 5)
 
     print(summary)
 
@@ -48,7 +60,13 @@ def summary(sprt: Test) -> str:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--instance', type=str, default="https://chess.swehosting.se", help="URL of the target instance.")
+    parser.add_argument(
+        '-i',
+        '--instance',
+        type=str,
+        default="https://chess.swehosting.se",
+        help="URL of the target instance."
+    )
     parser.add_argument('-t', '--test', type=int, default=1, help="Test number to analyse.")
     args = parser.parse_args()
 

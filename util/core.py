@@ -67,7 +67,14 @@ class Test:
 
         for worker in data:
             if int(worker[3 + os]) > 0:
-                self.push(Worker(worker[1], int(worker[0]), [int(worker[4 + os]), int(worker[5 + os]), int(worker[6 + os])]))
+                self.push(
+                    Worker(
+                        worker[1],
+                        int(worker[0].split("/")[-1].strip("\"")),
+                        [int(worker[4 + os]),
+                         int(worker[5 + os]),
+                         int(worker[6 + os])])
+                )
 
     def push(self, worker: Worker):
         self.__workers.append(worker)
@@ -87,12 +94,21 @@ class Test:
     def workers(self) -> list[Worker]:
         return self.__workers
 
+    def results(self) -> tuple[int, int, int]:
+        results = [0, 0, 0]
+        for worker in self.workers():
+            worker_results = worker.results()
+            for i in range(3):
+                results[i] += worker_results[i]
+        [w, l, d] = results
+        return w, l, d
+
     def __str__(self) -> str:
         base = f"CREATOR: {self.creator()}\n"
         base += f"ENGINE: {self.engine()}\n"
         base += f"DIFF: {self.diff()}\n"
 
-        base += f"ID  :OWNER       :GAMES :WINS  :LOSSES:DRAWS\n"
+        base += "ID  :OWNER       :GAMES :WINS  :LOSSES:DRAWS\n"
         for worker in self.workers():
             if sum(worker.results()) > 0:
                 base += str(worker) + "\n"
